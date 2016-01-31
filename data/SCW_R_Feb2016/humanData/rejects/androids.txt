@@ -1,0 +1,4 @@
+androidVersion,name,weight_kg
+Mark1,Spot,70
+Mark8,dot,56
+Mark2,tot,65
