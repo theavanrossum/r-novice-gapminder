@@ -1,0 +1,4 @@
+robotType,name,weight_kg
+dogBot,spot,10
+catBot,dot,3
+rockBot,tot,1

@@ -1,0 +1,4 @@
+rockType,name,weight_g
+igneous,monica,102
+sedimentary,lulu,56
+metamorphic,john,300
