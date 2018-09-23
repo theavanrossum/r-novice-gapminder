@@ -360,8 +360,19 @@ xlist[[1:2]] # can't extract more than one element at once</code></pre>
 </div>
 <div id="data-frames" class="section level2">
 <h2>Data frames</h2>
-<p>Remember the data frames are lists underneath the hood, so similar rules apply. However they are also two dimensional objects:</p>
-<p><code>[</code> with one argument will act the same way as for lists, where each list element corresponds to a column. The resulting object will be a data frame:</p>
+<p>data frames = lists</p>
+<pre class="r"><code>head(iris)
+
+iris[&quot;Sepal.Length&quot;]
+iris[[&quot;Sepal.Length&quot;]]
+
+# also kinda like a matrix
+iris[1:4,1:3]
+iris[1,]
+iris[2:4,]</code></pre>
+</div>
+<div id="stop-here" class="section level1">
+<h1>STOP HERE</h1>
 <pre class="r"><code>head(gapminder[3])</code></pre>
 <p>Similarly, <code>[[</code> will act to extract <em>a single column</em>:</p>
 <pre class="r"><code>head(gapminder[[&quot;lifeExp&quot;]])</code></pre>

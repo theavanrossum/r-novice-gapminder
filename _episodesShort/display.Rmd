@@ -1,0 +1,678 @@
+---
+title: "Display"
+source: Rmd
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options-short.R")
+knitr_fig_path("d-")
+```
+
+## 1. Introduction to R & RStudio
+
+> ## Challenge 1 {.challenge}
+>
+> What will be the value of each  variable  after each
+> statement in the following program?
+>
+> ```{r, eval=FALSE}
+> mass <- 47.5
+> age <- 122
+> mass <- mass * 2.3
+> age <- age + 1
+> ```
+>
+
+> ## Challenge 2 {.challenge}
+>
+> Run the code from the previous challenge, and write a command to
+> compare mass to age. Is mass larger than age?
+>
+
+> ## Challenge 3 {.challenge}
+>
+> Clean up your working environment by deleting the mass and age
+> variables.
+>
+
+> ## Challenge 4 {.challenge}
+> 
+> Install the following packages: `ggplot2`, `plyr`, `gapminder`
+> 
+
+# 2. project intro
+
+> ## Challenge 1 {.challenge}
+> Download the gapminder data from [here](https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv).
+>
+> 1. Download the file (CTRL + S, right mouse click -> "Save as", or File -> "Save page as")
+> 2. Make sure it's saved under the name `gapminder-FiveYearData.csv`
+> 3. Save the file in the `data/` folder within your project.
+>
+> We will load and inspect these data later.
+
+# 3. 04 data structures
+> ## Challenge 1.1
+>
+> Start by making a vector with the numbers 1 through 26.
+> Multiply the vector by 2, and give the resulting vector
+> names A through Z (hint: there is a built in vector called `LETTERS`)
+>
+> > ## Solution to Challenge 1.1
+> >
+> > ```{r}
+> > x <- 1:26
+> > x <- x * 2
+> > names(x) <- LETTERS
+> > ```
+> {: .solution}
+{: .challenge}
+
+> ## Challenge 2
+>
+> Is there a factor in our `cats` data.frame? what is its name?
+> Try using `?read.csv` to figure out how to keep text columns as character
+> vectors instead of factors; then write a command or two to show that the factor
+> in `cats` is actually a character vector when loaded in this way.
+>
+> > ## Solution to Challenge 2
+> >
+> > One solution is use the argument `stringAsFactors`:
+> >
+> > ```{r, eval = FALSE}
+> > cats <- read.csv(file="data/feline-data.csv", stringsAsFactors=FALSE)
+> > str(cats$coat)
+> > ```
+> >
+> > Another solution is use the argument `colClasses`
+> > that allow finer control.
+> >
+> > ```{r, eval = FALSE}
+> > cats <- read.csv(file="data/feline-data.csv", colClasses=c(NA, NA, "character"))
+> > str(cats$coat)
+> > ```
+> >
+> > Note: new students find the help files difficult to understand; make sure to let them know
+> > that this is typical, and encourage them to take their best guess based on semantic meaning,
+> > even if they aren't sure.
+> {: .solution}
+{: .challenge}
+
+
+# 4. vectorisation
+
+> ## Challenge 3
+>
+> Given the following matrix:
+>
+> ```{r}
+> m <- matrix(1:12, nrow=3, ncol=4)
+> m
+> ```
+>
+> Write down what you think will happen when you run:
+>
+> 1. `m ^ -1`
+> 2. `m * c(1, 0, -1)`
+> 3. `m > c(0, 20)`
+> 4. `m * c(1, 0, -1, 2)`
+>
+> Did you get the output you expected? If not, ask a helper!
+>
+> > ## Solution to challenge 3
+> >
+> > Given the following matrix:
+> >
+> > ```{r}
+> > m <- matrix(1:12, nrow=3, ncol=4)
+> > m
+> > ```
+> >
+> >
+> > Write down what you think will happen when you run:
+> >
+> > 1. `m ^ -1`
+> >
+> > ```{r, echo=FALSE}
+> > m ^ -1
+> > ```
+> >
+> > 2. `m * c(1, 0, -1)`
+> >
+> > ```{r, echo=FALSE}
+> > m * c(1, 0, -1)
+> > ```
+> >
+> > 3. `m > c(0, 20)`
+> >
+> > ```{r, echo=FALSE}
+> > m > c(0, 20)
+> > ```
+> >
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 4
+>
+> We're interested in looking at the sum of the
+> following sequence of fractions:
+>
+> ```{r, eval=FALSE}
+>  x = 1/(1^2) + 1/(2^2) + 1/(3^2) + ... + 1/(n^2)
+> ```
+>
+> This would be tedious to type out, and impossible for high values of
+> n.  Use vectorisation to compute x when n=100. What is the sum when
+> n=10,000?
+>
+> > ##  Challenge 4
+> >
+> > We're interested in looking at the sum of the
+> > following sequence of fractions:
+> >
+> > ```{r, eval=FALSE}
+> >  x = 1/(1^2) + 1/(2^2) + 1/(3^2) + ... + 1/(n^2)
+> > ```
+> >
+> > This would be tedious to type out, and impossible for
+> > high values of n.
+> > Can you use vectorisation to compute x, when n=100?
+> > How about when n=10,000?
+> >
+> > ```{r}
+> > sum(1/(1:100)^2)
+> > sum(1/(1:1e04)^2)
+> > n <- 10000
+> > sum(1/(1:n)^2)
+> > ```
+> >
+> > We can also obtain the same results using a function:
+> > ```{r}
+> > inverse_sum_of_squares <- function(n) {
+> >   sum(1/(1:n)^2)
+> > }
+> > inverse_sum_of_squares(100)
+> > inverse_sum_of_squares(10000)
+> > n <- 10000
+> > inverse_sum_of_squares(n)
+> > ```
+> >
+> {: .solution}
+{: .challenge}
+
+# 5. 06 data subsetting 1
+> ## Challenge 1
+>
+> Given the following code:
+>
+> ```{r}
+> x <- c(5.4, 6.2, 7.1, 4.8, 7.5)
+> names(x) <- c('a', 'b', 'c', 'd', 'e')
+> print(x)
+> ```
+>
+> Come up with at least 2 different commands that will produce the following output:
+>
+> ```{r, echo=FALSE}
+> x[2:4]
+> ```
+>
+> After you find 2 different commands, compare notes with your neighbour. Did you have different strategies?
+>
+> > ## Solution to challenge 1
+> >
+> > ```{r}
+> > x[2:4]
+> > ```
+> > ```{r}
+> > x[-c(1,5)]
+> > ```
+> > ```{r}
+> > x[c(2,3,4)]
+> > ```
+> >
+> {: .solution}
+{: .challenge}
+
+> ## Challenge 2
+>
+> Given the following code:
+>
+> ```{r}
+> x <- c(5.4, 6.2, 7.1, 4.8, 7.5)
+> names(x) <- c('a', 'b', 'c', 'd', 'e')
+> print(x)
+> ```
+>
+> Write a subsetting command to return the values in x that are greater than 4 and less than 7.
+>
+> > ## Solution to challenge 2
+> >
+> > ```{r}
+> > x_subset <- x[x<7 & x>4]
+> > print(x_subset)
+> >```
+> {: .solution}
+{: .challenge}
+
+![Inequality testing](../fig/06-rmd-inequality.1.png)
+
+When one vector is shorter than the other, it gets *recycled*:
+
+![Inequality testing: results of recycling](../fig/06-rmd-inequality.2.png)
+
+warning because trailing "c"
+
+> ## Challenge 3
+>
+> 3.1 Make a vector with the names of the months as the vector names and the day counts as the values
+> January - 31 days
+> February - 28 days
+> March - 31 days
+> April - 30 days
+> May - 31 days
+> June - 30 days
+> July - 31 days
+> August - 31 days
+> September - 30 days
+> October - 31 days
+> November - 30 days
+> December - 31 days
+>
+> 3.2 get the months with more than 30 days
+> 3.3 get the number of days in the last three months of the year, then the last 6 months of the year
+> 3.4 get the number of days that May and March have
+> 3.5 extra challenge: get the number of days in every second month (hint: look up the "seq" function)
+
+> > ## Solution to challenge 3
+> > months <- c(Jan=31,Feb=28,Mar=31,Apr=30,May=31,Jun=30,Jul=31,Aug=31,Sept=30,Oct=31,Nov=30,Dec=31)
+> > months[c(10,11,12)]
+> > months[names(months) %in% c("May","Mar")]
+> > months[seq(from=1, to=12,by=2)]
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 4
+>
+> Given the following code:
+>
+> ```{r}
+> m <- matrix(1:18, nrow=3, ncol=6)
+> print(m)
+> ```
+>
+> 1. Which of the following commands will extract the values 11 and 14?
+>
+> A. `m[2,4,2,5]`
+>
+> B. `m[2:5]`
+>
+> C. `m[4:5,2]`
+>
+> D. `m[2,c(4,5)]`
+>
+> > ## Solution to challenge 4
+> >
+> > D
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 5
+> Given the following list:
+>
+> ```{r, eval=FALSE}
+> xlist <- list(a = "Software Carpentry", b = 1:10, data = head(iris))
+> ```
+>
+> Using your knowledge of both list and vector subsetting, extract the number 2 from xlist.
+> Hint: the number 2 is contained within the "b" item in the list.
+>
+> > ## Solution to challenge 5
+> >
+> > ```{r}
+> > xlist$b[2]
+> > ```
+> > ```{r}
+> > xlist[[2]][2]
+> > ```
+> > ```{r}
+> > xlist[["b"]][2]
+> > ```
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 6
+> Given a linear model:
+>
+> ```{r, eval=FALSE}
+> mod <- aov(pop ~ lifeExp, data=gapminder)
+> ```
+>
+> Extract the residual degrees of freedom (hint: `attributes()` will help you)
+>
+> > ## Solution to challenge 6
+> >
+> > ```{r, eval=FALSE}
+> > attributes(mod) ## `df.residual` is one of the names of `mod`
+> > ```
+> > ```{r, eval=FALSE}
+> > mod$df.residual
+> > ```
+> {: .solution}
+{: .challenge}
+
+# 6. 5 data structures 2
+
+> ## Challenge 1
+> Let's imagine that 1 human year is equivalent to 7 cat years. 
+> 1. Create a vector called `human_age` by multiplying `cats$age` by 7.
+> 2. Convert `human_age` to a factor.
+> 3. Convert `human_age` back to a numeric vector using the `as.numeric()` function. Now divide it by 7 to get the original ages back. Explain what happened.
+>
+> > ## Solution to Challenge 1
+> > 1. `human_age <- cats$age * 7`
+> > 2. `human_age <- factor(human_age)`. `as.factor(human_age)` works just as well.
+> > 3. `as.numeric(human_age)` yields `1 2 3 4 4` because factors are stored as integers (here, 1:4), each of which is associated with a label (here, 28, 35, 56, and 63). Converting the factor to a numeric vector gives us the underlying integers, not the labels. If we want the original numbers, we need to convert `human_age` to a character vector and then to a numeric vector (why does this work?). This comes up in real life when we accidentally include a character somewhere in a column of a .csv file supposed to only contain numbers, and forget to set `stringsAsFactors=FALSE` when we read in the data.
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 2
+>
+> You can create a new data frame right from within R with the following syntax:
+> ```{r}
+> df <- data.frame(id = c("a", "b", "c"),
+>                  x = 1:3,
+>                  y = c(TRUE, TRUE, FALSE),
+>                  stringsAsFactors = FALSE)
+> ```
+> Make a data frame that holds the following information for yourself:
+>
+> - first name
+> - last name
+> - lucky number
+>
+> Then use `rbind` to add an entry for the people sitting beside you.
+> Finally, use `cbind` to add a column with each person's answer to the question, "Is it time for coffee break?"
+>
+> > ## Solution to Challenge 2
+> > ```{r}
+> > df <- data.frame(first = c("Grace"),
+> >                  last = c("Hopper"),
+> >                  lucky_number = c(0),
+> >                  stringsAsFactors = FALSE)
+> > df <- rbind(df, list("Marie", "Curie", 238) )
+> > df <- cbind(df, coffeetime = c(TRUE,TRUE))
+> > ```
+> {: .solution}
+{: .challenge}
+
+> ## Challenge 3
+>
+> It's good practice to also check the last few lines of your data and some in the middle. How would you do this?
+>
+> Searching for ones specifically in the middle isn't too hard or we could simply ask for a few lines at random. How would you code this? (hint: check out the sample() or runif() functions using ?sample )
+>
+> > ## Solution to Challenge 3
+> > To check the last few lines it's relatively simple as R already has a function for this:
+> > 
+> > ~~~
+> > tail(gapminder)
+> > tail(gapminder, n = 15)
+> > ~~~
+> > {: .r}
+> > 
+> > What about a few arbitrary rows just for sanity (or insanity depending on your view)?
+> > ## Tip: There are several ways to achieve this.
+> > The solution here presents one form using nested functions. i.e. a function passed as an argument to another function. This might sound like a new concept but you are already using it in fact.
+> > Remember my_dataframe[rows, cols] will print to screen your data frame with the number of rows and columns you asked for (although you might have asked for a range or named columns for example). How would you get the last row if you don't know how many rows your data frame has? R has a function for this. What about getting a (pseudorandom) sample? R also has a function for this.
+> > ~~~
+> > gapminder[sample(nrow(gapminder), 5), ]
+> > ~~~
+> > {: .r}
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 5
+>
+> Read the output of `str(gapminder)` again;
+> this time, use what you've learned about factors, lists and vectors,
+> as well as the output of functions like `colnames` and `dim`
+> to explain what everything that `str` prints out for gapminder means.
+> If there are any parts you can't interpret, discuss with your neighbors!
+>
+> > ## Solution to Challenge 5
+> >
+> > The object `gapminder` is a data frame with columns
+> > - `country` and `continent` are factors.
+> > - `year` is an integer vector.
+> > - `pop`, `lifeExp`, and `gdpPercap` are numeric vectors.
+> >
+> {: .solution}
+{: .challenge}
+
+# 7. 13 dplyr
+
+> ## Challenge 1
+>
+> Write a single command (which can span multiple lines and includes pipes) that
+> will produce a dataframe that has the African values for `lifeExp`, `country`
+> and `year`, but not for other Continents.  How many rows does your dataframe
+> have and why?
+>
+> > ## Solution to Challenge 1
+> >```{r}
+> >year_country_lifeExp_Africa <- gapminder %>%
+> >                            filter(continent=="Africa") %>%
+> >                            select(year,country,lifeExp)
+> > ```
+> {: .solution}
+{: .challenge}
+
+
+## Using group_by() and summarize()
+
+```{r}
+str(gapminder)
+
+str(gapminder %>% group_by(continent))
+```
+
+list of dfs
+
+![](../fig/13-dplyr-fig2.png)
+
+## Using summarize()
+
+```{r}
+gdp_bycontinents <- gapminder %>%
+    group_by(continent) %>%
+    summarize(mean_gdpPercap=mean(gdpPercap))
+gdp_bycontinents
+```
+
+![](../fig/13-dplyr-fig3.png)
+
+
+> ## Challenge 2
+>
+>
+> Calculate the average life expectancy per country. Which has the longest average life
+> expectancy and which has the shortest average life expectancy?
+>
+> > ## Solution to Challenge 2
+> >```{r}
+> >lifeExp_bycountry <- gapminder %>%
+> >    group_by(country) %>%
+> >    summarize(mean_lifeExp=mean(lifeExp))
+> >lifeExp_bycountry %>%
+> >    filter(mean_lifeExp == min(mean_lifeExp) | mean_lifeExp == max(mean_lifeExp))
+> >```
+> Another way to do this is to use the `dplyr` function `arrange()`, which
+> arranges the rows in a data frame according to the order of one or more
+> variables from the data frame.  It has similar syntax to other functions from
+> the `dplyr` package. You can use `desc()` inside `arrange()` to sort in
+> descending order.
+> >```{r}
+> >lifeExp_bycountry %>%
+> >    arrange(mean_lifeExp) %>%
+> >    head(1)
+> >lifeExp_bycountry %>%
+> >    arrange(desc(mean_lifeExp)) %>%
+> >    head(1)
+> >```
+> {: .solution}
+{: .challenge}
+
+
+> ## Advanced Challenge
+>
+> Calculate the average life expectancy in 2002 of 2 randomly selected countries
+> for each continent. Then arrange the continent names in reverse order.
+> **Hint:** Use the `dplyr` functions `arrange()` and `sample_n()`, they have
+> similar syntax to other dplyr functions.
+>
+> > ## Solution to Advanced Challenge
+> >```{r}
+> >lifeExp_2countries_bycontinents <- gapminder %>%
+> >    filter(year==2002) %>%
+> >    group_by(continent) %>%
+> >    sample_n(2) %>%
+> >    summarize(mean_lifeExp=mean(lifeExp)) %>%
+> >    arrange(desc(mean_lifeExp))
+> >```
+> {: .solution}
+{: .challenge}
+
+## Other great resources
+
+* [R for Data Science](http://r4ds.had.co.nz/)
+* [Data Wrangling Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+* [Introduction to dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)
+* [Data wrangling with R and RStudio](https://www.rstudio.com/resources/webinars/data-wrangling-with-r-and-rstudio/)
+
+# 8. plotting
+
+> ## Challenge 1
+>
+> Modify the example so that the figure shows how life expectancy has
+> changed over time:
+>
+> ```{r, eval=FALSE}
+> ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+> ```
+>
+> Hint: the gapminder dataset has a column called "year", which should appear
+> on the x-axis.
+>
+> > ## Solution to challenge 1
+> >
+> > Here is one possible solution:
+> >
+> > ```{r ch1-sol}
+> > ggplot(data = gapminder, aes(x = year, y = lifeExp)) + geom_point()
+> > ```
+> >
+> {: .solution}
+{: .challenge}
+
+>
+> ## Challenge 2
+>
+> In the previous examples and challenge we've used the `aes` function to tell
+> the scatterplot **geom** about the **x** and **y** locations of each point.
+> Another *aesthetic* property we can modify is the point *color*. Modify the
+> code from the previous challenge to **color** the points by the "continent"
+> column. What trends do you see in the data? Are they what you expected?
+>
+> > ## Solution to challenge 2
+> >
+> > In the previous examples and challenge we've used the `aes` function to tell
+> > the scatterplot **geom** about the **x** and **y** locations of each point.
+> > Another *aesthetic* property we can modify is the point *color*. Modify the
+> > code from the previous challenge to **color** the points by the "continent"
+> > column. What trends do you see in the data? Are they what you expected?
+> >
+> > ```{r ch2-sol}
+> > ggplot(data = gapminder, aes(x = year, y = lifeExp, color=continent)) +
+> >   geom_point()
+> > ```
+> >
+> {: .solution}
+{: .challenge}
+
+> ## Challenge 4a
+>
+> Modify the color and size of the points on the point layer in the previous
+> example.
+>
+> Hint: do not use the `aes` function.
+>
+> > ## Solution to challenge 4a
+> >
+> > Modify the color and size of the points on the point layer in the previous
+> > example.
+> >
+> > Hint: do not use the `aes` function.
+> >
+> > ```{r ch4a-sol}
+> > ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+> >  geom_point(size=3, color="orange") + scale_x_log10() +
+> >  geom_smooth(method="lm", size=1.5)
+> > ```
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 4b
+>
+> Modify your solution to Challenge 4a so that the
+> points are now a different shape and are colored by continent with new
+> trendlines.  Hint: The color argument can be used inside the aesthetic.
+>
+> > ## Solution to challenge 4b
+> >
+> > Modify Challenge 4 so that the points are now a different shape and are
+> > colored by continent with new trendlines.
+> >
+> > Hint: The color argument can be used inside the aesthetic.
+> >
+> >```{r ch4b-sol}
+> > ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+> > geom_point(size=3, shape=17) + scale_x_log10() +
+> > geom_smooth(method="lm", size=1.5)
+> > ```
+> {: .solution}
+{: .challenge}
+
+[cheat]: http://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+[ggplot-doc]: http://docs.ggplot2.org/current/
+
+
+> ## Challenge 5
+>
+> Create a density plot of GDP per capita, filled by continent.
+>
+> Advanced:
+>  - Transform the x axis to better visualise the data spread.
+>  - Add a facet layer to panel the density plots by year.
+>
+> > ## Solution to challenge 5
+> >
+> > Create a density plot of GDP per capita, filled by continent.
+> >
+> > Advanced:
+> >  - Transform the x axis to better visualise the data spread.
+> >  - Add a facet layer to panel the density plots by year.
+> >
+> > ```{r ch5-sol}
+> > ggplot(data = gapminder, aes(x = gdpPercap, fill=continent)) +
+> >  geom_density(alpha=0.6) + facet_wrap( ~ year) + scale_x_log10()
+> > ```
+> {: .solution}
+{: .challenge}

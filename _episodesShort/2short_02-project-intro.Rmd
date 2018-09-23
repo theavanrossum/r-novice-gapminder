@@ -71,6 +71,16 @@ outputs
 
 Now we have a good directory structure we will now place/save the data file in the `data/` directory.
 
+```{r}
+
+# save this script
+
+# function with named parameters
+#"https://raw.githubusercontent.com/theavanrossum/r-novice-gapminder/gh-pages/data/feline-data.csv"
+download.file(url = "https://bit.ly/2pD8vEF", destfile = "../data/feline-data.csv")
+
+```
+
 > ## Challenge 1 {.challenge}
 > Download the gapminder data from [here](https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv).
 >

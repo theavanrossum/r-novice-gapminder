@@ -337,9 +337,9 @@ typeof(cats)
 data.frame is really a list of vectors and factors
 
 therefore 
- 
-**columns must have the same type
-rows do not have to**
+
+*columns must have the same type*
+*rows do not have to*
 
 > ## Challenge 3
 >
@@ -360,6 +360,7 @@ rows do not have to**
 >
 > > ## Solution to Challenge 3
 > > ```{r, eval=TRUE, echo=TRUE}
+> > cats <- read.csv(file="../data/feline-data.csv", stringsAsFactors=FALSE)
 > > cats[1]
 > > ```
 > > We can think of a data frame as a list of vectors. The single brace `[1]`
