@@ -1,0 +1,258 @@
+---
+title: "Introduction to R and RStudio"
+teaching: 45
+exercises: 10
+questions:
+- "How to find your way around RStudio?"
+- "How to interact with R?"
+- "How to manage your environment?"
+- "How to install packages?"
+objectives:
+- "Describe the purpose and use of each pane in the RStudio IDE"
+- "Locate buttons and options in the RStudio IDE"
+- "Define a variable"
+- "Assign data to a variable"
+- "Manage a workspace in an interactive R session"
+- "Use mathematical and comparison operators"
+- "Call functions"
+- "Manage packages"
+keypoints:
+- "Use RStudio to write and run R programs."
+- "R has the usual arithmetic operators and mathematical functions."
+- "Use `<-` to assign values to variables."
+- "Use `ls()` to list the variables in a program."
+- "Use `rm()` to delete objects in a program."
+- "Use `install.packages()` to install packages (libraries)."
+source: Rmd
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options-short.R")
+knitr_fig_path("01-")
+```
+
+
+## Introduction to RStudio
+fundamentals of R, best practices that will make your life easier
+
+explain R studio panels (editor appears later)
+all coding goes in script
+
+you type in commands, R tries to execute them, and then returns a result.
+
+# Using R as a calculator
+
+The simplest thing you could do with R is do arithmetic:
+
+```{r}
+1 + 100
+```
+
+explain results `[1]`
+
+explain leading `>` vs `+`
+
+aborting: `Esc` ; `ctrl+c`
+
+```{r}
+# comments are not executed
+```
+
+order of operations
+
+```{r}
+3 + 5 * 2
+```
+
+parentheses
+
+```{r}
+(3 + 5) * 2
+```
+
+Really small or large numbers -> scientific notation
+
+```{r}
+2^300
+(1+1)^300
+2/10000
+```
+
+Which is shorthand for "multiplied by `10^XX`". So `2e-4` is shorthand for `2 * 10^(-4)`.
+
+You can write numbers in scientific notation too:
+
+```{r}
+5e3  # Note the lack of minus here
+```
+
+## Comparing things
+
+We can also do comparison in R:
+
+```{r}
+1 == 1  
+1 != 2  
+```
+
+```{r}
+1 <  2  
+1 <= 1 
+1 > 0
+1 >= -9 
+```
+
+# CONCEPT: Variables
+
+let's say we want to take some important statistics on the class today
+
+raise your hand if you prefer cats over dogs ... dogs over cats ... 
+
+```{r}
+# don't write comments
+12 # cats over dogs
+16 # dogs over cats
+32 # total
+```
+
+if we come back tomorrow, will we remember what this means? no way!
+so we want to store these values in a way that makes it easy to remember what they represent and easy to reuse them
+
+## Variables and assignment
+
+```{r}
+preferCats <- 12
+```
+
+does not print a value
+
+See `Environment` tab 
+
+print value by 
+```{r}
+preferCats
+```
+
+store others
+
+```{r}
+
+preferDogs <- 16 
+totalInClass <- 31
+noPreference <- totalInClass - preferCats - preferDogs
+
+diffInPreferences <- preferCats - preferDogs # NOTE: SMALLER - BIGGER
+
+```
+
+
+variables can be reassigned
+
+```{r}
+
+totalInClass <- 32
+
+preferCats <- preferCats + 1
+```
+
+see updated variable pane
+
+```{r}
+# note that this is not updated!
+diffInPreferences
+```
+
+**explain order of commands**
+
+# CONCEPT: Functions
+
+```{r}
+diffInPreferences
+```
+
+this is a function, takes a parameter
+
+```{r}
+
+diffInPreferences
+# I don't want a negative
+abs(diffInPreferences)
+
+abs(-10)
+
+abs
+
+?abs
+
+```
+
+hard to remember names -- use google
+code completion
+
+# Misc
+
+## flexibility of language
+
+
+*Variable names* can contain letters, numbers, underscores and periods. They
+cannot start with a number nor contain spaces. 
+
+  * camelCaseToSeparateWords
+  * periods.between.words
+  * underscores\_between_words
+
+*value assignment symbol*
+
+```{r}
+totalInClass = 32
+```
+
+recommendation is to use `<-`
+
+
+
+What you use is up to you, but **be consistent**.
+
+
+## R Packages
+
+package is a group of functions
+over 7,000 packages available on CRAN (the comprehensive R archive
+network).
+
+* You can see what packages are installed by typing
+  `installed.packages()`
+* You can install packages by typing `install.packages("packagename")`,
+  where `packagename` is the package name, in quotes.
+* You can make a package available for use with `library(packagename)`
+
+
+> ## Challenge 1 {.challenge}
+>
+> What will be the value of each  variable  after each
+> statement in the following program?
+>
+> ```{r, eval=FALSE}
+> mass <- 47.5
+> age <- 122
+> mass <- mass * 2.3
+> age <- age + 1
+> ```
+>
+
+> ## Challenge 2 {.challenge}
+>
+> Run the code from the previous challenge, and write a command to
+> compare mass to age. Is mass larger than age?
+>
+
+> ## Challenge 3 {.challenge}
+>
+> Clean up your working environment by deleting the mass and age
+> variables.
+>
+
+> ## Challenge 4 {.challenge}
+> 
+> Install the following packages: `ggplot2`, `plyr`, `gapminder`
+> 

@@ -1,0 +1,607 @@
+---
+title: Subsetting Data
+teaching: 35
+exercises: 15
+questions:
+- "How can I work with subsets of data in R?"
+objectives:
+- "To be able to subset vectors, factors, matrices, lists, and data frames"
+- "To be able to extract individual and multiple elements: by index, by name, using comparison operations"
+- "To be able to skip and remove elements from various data structures."
+keypoints:
+- "Indexing in R starts at 1, not 0."
+- "Access individual values by location using `[]`."
+- "Access slices of data using `[low:high]`."
+- "Access arbitrary sets of data using `[c(...)]`."
+- "Use logical operations and logical vectors to access subsets of data."
+source: Rmd
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options-short.R")
+knitr_fig_path("06-")
+# Silently load in the data so the rest of the lesson works
+gapminder <- read.csv("../data/gapminder_data.csv", header=TRUE)
+```
+
+
+six  ways to subset
+
+```{r}
+x <- c(41,42,43,44,45)
+names(x) <- c('a', 'b', 'c', 'd', 'e') # these should be unique
+x
+
+# alt way to make it
+x <- c(a=41, b=42, c=43, d=44, e=45) # names
+x
+```
+
+## Accessing elements using their indices
+
+place in the vector = index
+
+```{r}
+x[1]
+x[4]
+```
+
+
+```{r}
+
+x[c(1,4)] # note the difference between round parenthesis and square braket here
+
+1:4
+x[1:4]
+
+x[c(1,1,3)] # same element multiple times
+```
+
+```{r}
+x[6] # beyond length
+```
+
+This is a vector of length one containing an `NA`, whose name is also `NA`.
+
+If we ask for the 0th element, we get an empty vector:
+
+```{r}
+x[0] # empty vector (note for those with programming experiment in other languages)
+```
+
+## Skipping and removing elements
+
+```{r}
+x[-2] # every element *except*
+
+x[c(-1, -5)]  # or x[-c(1,5)]
+x[-1:3]
+-1:3
+x[-(1:3)]
+
+x # doesn't change the original vector
+```
+
+
+> ## Challenge 1
+>
+> Given the following code:
+>
+> ```{r}
+> x <- c(5.4, 6.2, 7.1, 4.8, 7.5)
+> names(x) <- c('a', 'b', 'c', 'd', 'e')
+> print(x)
+> ```
+>
+> Come up with at least 2 different commands that will produce the following output:
+>
+> ```{r, echo=FALSE}
+> x[2:4]
+> ```
+>
+> After you find 2 different commands, compare notes with your neighbour. Did you have different strategies?
+>
+> > ## Solution to challenge 1
+> >
+> > ```{r}
+> > x[2:4]
+> > ```
+> > ```{r}
+> > x[-c(1,5)]
+> > ```
+> > ```{r}
+> > x[c(2,3,4)]
+> > ```
+> >
+> {: .solution}
+{: .challenge}
+
+## Subsetting by name
+
+this is more robust,  will survive sorts
+
+```{r}
+x[c("a", "c")]
+```
+
+## Subsetting through other logical operations
+
+We can also use any logical vector to subset:
+
+```{r}
+x[c(FALSE, FALSE, TRUE, FALSE, TRUE)]
+```
+
+```{r}
+x > 43
+x[x > 43]
+```
+
+Combining logical conditions
+
+```{r}
+
+x > 43 & x < 45
+x == 42 | x > 44
+
+c(TRUE,TRUE) & c(FALSE, TRUE)
+
+# ! converts true to false; false to true
+4 == 5 
+!(4 == 5)
+
+4 != 5
+
+!c(TRUE,FALSE)
+```
+
+> ## Challenge 2
+>
+> Given the following code:
+>
+> ```{r}
+> x <- c(5.4, 6.2, 7.1, 4.8, 7.5)
+> names(x) <- c('a', 'b', 'c', 'd', 'e')
+> print(x)
+> ```
+>
+> Write a subsetting command to return the values in x that are greater than 4 and less than 7.
+>
+> > ## Solution to challenge 2
+> >
+> > ```{r}
+> > x_subset <- x[x<7 & x>4]
+> > print(x_subset)
+> >```
+> {: .solution}
+{: .challenge}
+
+
+
+## Skipping named elements
+
+Skipping or removing named elements is a little harder. If we try to skip one named element by negating the string, R complains (slightly obscurely) that it doesn't know how to take the negative of a string:
+
+```{r}
+x[-"a"] # error
+
+x[names(x) != "a"]
+```
+
+Skipping multiple named indices is a little bit harder still. Suppose we want to drop the `"a"` and `"c"` elements, so we try this:
+
+```{r}
+x[names(x)!=c("a","c")] # WRONG!
+```
+
+what happened?
+
+### Recycling
+
+Let's take a look at the comparison component of this code:
+
+```{r}
+names(x) != c("a", "c")
+```
+
+Why does R give `FALSE` as the third element of this vector, when `names(x)[3] != "c"` is obviously false?
+When you use `!=`, R tries to compare each element
+of the left argument with the corresponding element of its right
+argument. What happens when you compare vectors of different lengths?
+
+![Inequality testing](../fig/06-rmd-inequality.1.png)
+
+When one vector is shorter than the other, it gets *recycled*:
+
+![Inequality testing: results of recycling](../fig/06-rmd-inequality.2.png)
+
+warning because trailing "c"
+
+if `names(x)` had contained six elements, R would *silently* have done the wrong thing (i.e., not what we intended it to do). This recycling rule can can introduce hard-to-find and subtle bugs!
+
+solution:
+`%in%`
+
+```{r}
+x[ ! names(x) %in% c("a","c") ]
+```
+
+> ## Challenge 3
+>
+> 3.1 Make a vector with the names of the months as the vector names and the day counts as the values
+> January - 31 days
+> February - 28 days
+> March - 31 days
+> April - 30 days
+> May - 31 days
+> June - 30 days
+> July - 31 days
+> August - 31 days
+> September - 30 days
+> October - 31 days
+> November - 30 days
+> December - 31 days
+>
+> 3.2 get the months with more than 30 days
+> 3.3 get the number of days in the last three months of the year, then the last 6 months of the year
+> 3.4 get the number of days that May and March have
+> 3.5 extra challenge: get the number of days in every second month (hint: look up the "seq" function)
+
+> > ## Solution to challenge 3
+> > months <- c(Jan=31,Feb=28,Mar=31,Apr=30,May=31,Jun=30,Jul=31,Aug=31,Sept=30,Oct=31,Nov=30,Dec=31)
+> > months[c(10,11,12)]
+> > months[names(months) %in% c("May","Mar")]
+> > months[seq(from=1, to=12,by=2)]
+> {: .solution}
+{: .challenge}
+
+## Handling special values
+
+missing, infinite, undefined
+
+There are a number of special functions you can use to filter out this data:
+
+ * `is.na` will return all positions in a vector, matrix, or data.frame
+   containing `NA` (or `NaN`)
+ * likewise, `is.nan`, and `is.infinite` will do the same for `NaN` and `Inf`.
+ * `is.finite` will return all positions in a vector, matrix, or data.frame
+   that do not contain `NA`, `NaN` or `Inf`.
+ * `na.omit` will filter out all missing values from a vector
+
+## Factor subsetting
+
+Now that we've explored the different ways to subset vectors, how
+do we subset the other data structures?
+
+Factor subsetting works the same way as vector subsetting.
+
+```{r}
+f <- factor(c("a", "a", "b", "c", "c", "d"))
+f[f == "a"]
+f[f %in% c("b", "c")]
+f[1:3]
+```
+
+Skipping elements will not remove the level
+even if no more of that category exists in the factor:
+
+```{r}
+f[-3]
+```
+
+## Matrix subsetting
+
+Matrices are also subsetted using the `[` function. In this case
+it takes two arguments: the first applying to the rows, the second
+to its columns:
+
+```{r}
+set.seed(1)
+m <- matrix(rnorm(6*4), ncol=4, nrow=6)
+m[3:4, c(3,1)]
+```
+
+You can leave the first or second arguments blank to retrieve all the
+rows or columns respectively:
+
+```{r}
+m[, c(3,4)]
+```
+
+If we only access one row or column, R will automatically convert the result
+to a vector:
+
+```{r}
+m[3,]
+```
+
+If you want to keep the output as a matrix, you need to specify a *third* argument;
+`drop = FALSE`:
+
+```{r}
+m[3, , drop=FALSE]
+```
+
+Unlike vectors, if we try to access a row or column outside of the matrix,
+R will throw an error:
+
+```{r, error=TRUE}
+m[, c(3,6)]
+```
+
+
+mention: Higher dimensional arrays
+
+
+```{r}
+matrix(1:6, nrow=2, ncol=3)
+```
+
+If you wish to populate the matrix by row, use `byrow=TRUE`:
+
+```{r}
+matrix(1:6, nrow=2, ncol=3, byrow=TRUE)
+```
+
+Matrices can also be subsetted using their rownames and column names
+instead of their row and column indices.
+
+> ## Challenge 4
+>
+> Given the following code:
+>
+> ```{r}
+> m <- matrix(1:18, nrow=3, ncol=6)
+> print(m)
+> ```
+>
+> 1. Which of the following commands will extract the values 11 and 14?
+>
+> A. `m[2,4,2,5]`
+>
+> B. `m[2:5]`
+>
+> C. `m[4:5,2]`
+>
+> D. `m[2,c(4,5)]`
+>
+> > ## Solution to challenge 4
+> >
+> > D
+> {: .solution}
+{: .challenge}
+
+
+## List subsetting
+
+three functions to subset lists :  `[`, `[[`, and `$`.
+
+```{r}
+xlist <- list(a = "Software Carpentry", b = 1:10, data = head(iris))
+xlist[1] # [  will always return a list --- useful for subsetting a list
+str(xlist[1])
+
+# to get the value at the index
+xlist[[1]]
+str(xlist[[1]])
+```
+
+```{r, error=TRUE}
+xlist[1:2]
+xlist[[1:2]] # can't extract more than one element at once
+```
+
+Nor use it to skip elements:
+
+```{r, error=TRUE}
+xlist[[-1]]
+```
+
+But you can use names to both subset and extract elements:
+
+```{r}
+xlist[["a"]]
+```
+
+The `$` function is a shorthand way for extracting elements by name:
+
+```{r}
+xlist$data
+```
+
+> ## Challenge 5
+> Given the following list:
+>
+> ```{r, eval=FALSE}
+> xlist <- list(a = "Software Carpentry", b = 1:10, data = head(iris))
+> ```
+>
+> Using your knowledge of both list and vector subsetting, extract the number 2 from xlist.
+> Hint: the number 2 is contained within the "b" item in the list.
+>
+> > ## Solution to challenge 5
+> >
+> > ```{r}
+> > xlist$b[2]
+> > ```
+> > ```{r}
+> > xlist[[2]][2]
+> > ```
+> > ```{r}
+> > xlist[["b"]][2]
+> > ```
+> {: .solution}
+{: .challenge}
+
+
+> ## Challenge 6
+> Given a linear model:
+>
+> ```{r, eval=FALSE}
+> mod <- aov(pop ~ lifeExp, data=gapminder)
+> ```
+>
+> Extract the residual degrees of freedom (hint: `attributes()` will help you)
+>
+> > ## Solution to challenge 6
+> >
+> > ```{r, eval=FALSE}
+> > attributes(mod) ## `df.residual` is one of the names of `mod`
+> > ```
+> > ```{r, eval=FALSE}
+> > mod$df.residual
+> > ```
+> {: .solution}
+{: .challenge}
+
+
+## Data frames
+
+data frames = lists 
+
+```{r}
+head(iris)
+
+iris["Sepal.Length"]
+iris[["Sepal.Length"]]
+
+# also kinda like a matrix
+iris[1:4,1:3]
+iris[1,]
+iris[2:4,]
+```
+
+# STOP HERE
+
+
+```{r}
+head(gapminder[3])
+```
+
+Similarly, `[[` will act to extract *a single column*:
+
+```{r}
+head(gapminder[["lifeExp"]])
+```
+
+And `$` provides a convenient shorthand to extract columns by name:
+
+```{r}
+head(gapminder$year)
+```
+
+With two arguments, `[` behaves the same way as for matrices:
+
+```{r}
+gapminder[1:3,]
+```
+
+If we subset a single row, the result will be a data frame (because
+the elements are mixed types):
+
+```{r}
+gapminder[3,]
+```
+
+But for a single column the result will be a vector (this can
+be changed with the third argument, `drop = FALSE`).
+
+> ## Challenge 7
+>
+> Fix each of the following common data frame subsetting errors:
+>
+> 1. Extract observations collected for the year 1957
+>
+>    ```{r, eval=FALSE}
+>    gapminder[gapminder$year = 1957,]
+>    ```
+>
+> 2. Extract all columns except 1 through to 4
+>
+>    ```{r, eval=FALSE}
+>    gapminder[,-1:4]
+>    ```
+>
+> 3. Extract the rows where the life expectancy is longer the 80 years
+>
+>    ```{r, eval=FALSE}
+>    gapminder[gapminder$lifeExp > 80]
+>    ```
+>
+> 4. Extract the first row, and the fourth and fifth columns
+>   (`lifeExp` and `gdpPercap`).
+>
+>    ```{r, eval=FALSE}
+>    gapminder[1, 4, 5]
+>    ```
+>
+> 5. Advanced: extract rows that contain information for the years 2002
+>    and 2007
+>
+>    ```{r, eval=FALSE}
+>    gapminder[gapminder$year == 2002 | 2007,]
+>    ```
+>
+> > ## Solution to challenge 7
+> >
+> > Fix each of the following common data frame subsetting errors:
+> >
+> > 1. Extract observations collected for the year 1957
+> >
+> >    ```{r, eval=FALSE}
+> >    # gapminder[gapminder$year = 1957,]
+> >    gapminder[gapminder$year == 1957,]
+> >    ```
+> >
+> > 2. Extract all columns except 1 through to 4
+> >
+> >    ```{r, eval=FALSE}
+> >    # gapminder[,-1:4]
+> >    gapminder[,-c(1:4)]
+> >    ```
+> >
+> > 3. Extract the rows where the life expectancy is longer the 80 years
+> >
+> >    ```{r, eval=FALSE}
+> >    # gapminder[gapminder$lifeExp > 80]
+> >    gapminder[gapminder$lifeExp > 80,]
+> >    ```
+> >
+> > 4. Extract the first row, and the fourth and fifth columns
+> >   (`lifeExp` and `gdpPercap`).
+> >
+> >    ```{r, eval=FALSE}
+> >    # gapminder[1, 4, 5]
+> >    gapminder[1, c(4, 5)]
+> >    ```
+> >
+> > 5. Advanced: extract rows that contain information for the years 2002
+> >    and 2007
+> >
+> >     ```{r, eval=FALSE}
+> >     # gapminder[gapminder$year == 2002 | 2007,]
+> >     gapminder[gapminder$year == 2002 | gapminder$year == 2007,]
+> >     gapminder[gapminder$year %in% c(2002, 2007),]
+> >     ```
+> {: .solution}
+{: .challenge}
+
+> ## Challenge 8
+>
+> 1. Why does `gapminder[1:20]` return an error? How does it differ from `gapminder[1:20, ]`?
+>
+>
+> 2. Create a new `data.frame` called `gapminder_small` that only contains rows 1 through 9
+> and 19 through 23. You can do this in one or two steps.
+>
+> > ## Solution to challenge 8
+> >
+> > 1.  `gapminder` is a data.frame so needs to be subsetted on two dimensions. `gapminder[1:20, ]` subsets the data to give the first 20 rows and all columns.
+> >
+> > 2. 
+> >
+> > ```{r}
+> > gapminder_small <- gapminder[c(1:9, 19:23),]
+> > ```
+> {: .solution}
+{: .challenge}
